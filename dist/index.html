@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>PixiJs Test</title>
+	<link rel="stylesheet" href="index.css" />
+</head>
+<body>
+	<div id="background"></div>
+
+	<div class="form" id="form">
+		<h1>Web GL timeline performance test</h1>
+
+		<div>
+			<label for="users">Users</label>
+			<input id="users" value="50" min="1" max="200" type="number" />
+		</div>
+
+		<div>
+			<label for="days">Days</label>
+			<input id="days" value="60" min="1" max="180" type="namber" />
+		</div>
+
+		<div>
+			<label for="tasks_per_user">Tasks per user</label>
+			<input id="tasks_per_user" min="1" max="200" value="120" type="number" />
+		</div>
+
+		<button>Generate</button>
+	</div>
+
+	<div class="form" id="loader">
+		<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+	</div>
+
+	<div class="form" id="result">
+		<h1>Performance metrics</h1>
+
+		<div class="bl">
+			Total users number: <b id="users_num"></b>
+		</div>
+		<div class="bl">
+			Total tasks number: <b id="tasks_num"></b>
+		</div>
+		<div class="bl">
+			Generation time: <b id="generation_time"></b>
+		</div>
+		<div class="bl">
+			Rendering time: <b id="rendering_time"></b>
+		</div>
+
+		<br/>
+		<br/>
+
+		<button>Ok, got it</button>
+	</div>
+
+	<script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "webgl-timeline",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "webpack --watch",
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0"
+  },
+  "dependencies": {
+    "moment": "^2.29.4",
+    "pixi-scrollbox": "^2.3.1",
+    "pixi-viewport": "^4.34.4",
+    "pixi.js": "^6.4.2"
+  }
+}
