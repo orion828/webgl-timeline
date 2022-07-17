@@ -18,8 +18,12 @@ function getRandomColor() {
 	return colors[rand(0, 5)];
 }
 
-export function getTask(task, top) {
+export function getTask(task, top, totalDays) {
 	const item = new PIXI.Graphics();
+
+	// decrease days for last tasks, just for good looking presentation
+	task.days = Math.min(task.days, totalDays - task.daysFromStart + 1);
+
 	const width = task.days * 88 + Math.max((task.days - 1) * 2, 0);
 	const height = 50;
 	const x = task.daysFromStart * (88 + 2);

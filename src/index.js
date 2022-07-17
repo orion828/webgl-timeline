@@ -1,9 +1,12 @@
 import * as PIXI from 'pixi.js'
 import { Scrollbox } from 'pixi-scrollbox';
+import { drawFps } from './helpers/fps';
+import { changeRenderState } from './helpers/render';
+import { renderUserItem } from './helpers/user';
 import { initDates } from './helpers/dates';
 import { getTask, initTasks } from './helpers/tasks';
 import { drawBackground } from './helpers/background';
-import { getDay, getMonthAndYear, renderHeaderDay } from './helpers/day';
+import { getMonthAndYear, renderDay, renderHeaderDay } from './helpers/day';
 
 function createApp(width, height) {
 	return new PIXI.Application({
@@ -23,55 +26,10 @@ function createScrollBar(width, height, size) {
 	});
 }
 
-function renderUserItem(holder, height) {
-	// draw user icons
-	const icon = PIXI.Sprite.from('user.svg');
-	icon.width = 46;
-	icon.height = 46;
-	icon.antialias = true;
-	icon.anchor.set(0.5);
-	icon.x = 32;
-	icon.y = height + 25;
-
-	const firstName = new PIXI.Text(
-		'Gary',
-		{
-			fontFamily : 'sans-serif',
-			fontSize: 11,
-			fontWeight: 400,
-			align : 'center',
-			fill: 0x000000
-		}
-	);
-
-	const lastName = new PIXI.Text(
-		'ROMERO',
-		{
-			fontFamily : 'sans-serif',
-			fontSize: 11,
-			fontWeight: 400,
-			align : 'center',
-			fill: 0x000000
-		}
-	);
-
-	firstName.anchor.set(0.5);
-	firstName.x = 32;
-	firstName.y = height + 58;
-
-	lastName.anchor.set(0.5);
-	lastName.x = 32;
-	lastName.y = height + 72;
-
-	holder.content.addChild(icon);
-	holder.content.addChild(firstName);
-	holder.content.addChild(lastName);
-}
-
-function render(app, userNum, days, taskPerUser) {
+function render(app, userNum, daysNum, taskPerUser) {
 	let start = new Date();
-	const dates = initDates(days);
-	const tasks = initTasks(taskPerUser, userNum, days);
+	const dates = initDates(daysNum);
+	const tasks = initTasks(taskPerUser, userNum, daysNum);
 	let end = new Date();
 
 	document.querySelector('#users_num').innerHTML = userNum;
@@ -86,6 +44,7 @@ function render(app, userNum, days, taskPerUser) {
 
 	let top = 0;
 	const headerGraphics = new PIXI.Graphics();
+	const daysGraphics = new PIXI.Graphics();
 
 	for (let i = 0; i < userNum; i++) {
 		let height = (tasks[i].highestIndex + 2) * 52;
@@ -97,23 +56,26 @@ function render(app, userNum, days, taskPerUser) {
 		renderUserItem(sidebar, top);
 
 		for (let date of dates) {
-			// draw header items
 			if (i === 0) {
 				renderHeaderDay(date, headerGraphics);
 			}
 
-			const day = getDay(date, top, height);
-			main.content.addChild(day);
+			renderDay(date, top, height, daysGraphics);
 		}
 
 		for (let t of tasks[i].tasks) {
-			const task = getTask(t, top);
+			const task = getTask(t, top, daysNum);
 			main.content.addChild(task);
 		}
 
 		top += height + 6;
 	}
 
+	daysGraphics.data = {
+		'dontUpdateRenderState': true
+	};
+
+	main.content.addChildAt(daysGraphics, 0);
 	header.content.addChild(headerGraphics);
 
 	header.x = 66;
@@ -149,36 +111,6 @@ function render(app, userNum, days, taskPerUser) {
 
 	main.content.addChildAt(bg, 0);
 
-	// TODO: draw only visible part and offset
-	// Do it only if scroll was changed
-	const changeRenderState = function (childes) {
-		for (let child of childes) {
-			if (child.data && child.data.dontUpdateRenderState) {
-				continue;
-			}
-
-			const bounds = child.getBounds();
-
-			child.visible = (
-				// elements that starts in the visible part
-				(
-					bounds.x >= -scroll.offset &&
-					bounds.x <= scroll.width + scroll.offset &&
-					bounds.y >= -scroll.offset &&
-					bounds.y <= scroll.height + scroll.offset
-				) ||
-
-				// elements that ends in the visible part
-				(
-					bounds.x + bounds.width >= -scroll.offset &&
-					bounds.x + bounds.width <= scroll.width + scroll.offset &&
-					bounds.y + bounds.height >= -scroll.offset &&
-					bounds.y + bounds.height <= scroll.height + scroll.offset
-				)
-			);
-		}
-	}
-
 	const scroll = {
 		left: 0,
 		top: 0,
@@ -205,28 +137,7 @@ function render(app, userNum, days, taskPerUser) {
 
 	const childes = withChildes(main.content.children);
 
-	// draw fps
-	const fpsBg = new PIXI.Graphics();
-	fpsBg.beginFill(0x000000, 0.5);
-	fpsBg.drawRect(document.body.offsetWidth - 80, document.body.offsetHeight - 60, 80, 60);
-	fpsBg.endFill();
-	app.stage.addChild(fpsBg);
-
-	const fps = new PIXI.Text(
-		Math.round(app.ticker.FPS),
-		{
-			fontFamily : 'sans-serif',
-			fontSize: 30,
-			fontWeight: 500,
-			align : 'center',
-			fill: 0xffffff
-		}
-	);
-
-	fps.anchor.set(0.5);
-	fps.x = document.body.offsetWidth - 40;
-	fps.y = document.body.offsetHeight - 30;
-	app.stage.addChild(fps);
+	const fps = drawFps(app);
 
 	app.ticker.add(() => {
 		fps.text = Math.round(app.ticker.FPS);
@@ -252,10 +163,12 @@ function render(app, userNum, days, taskPerUser) {
 				scroll.lastChange.left = scroll.left;
 				scroll.lastChange.top = scroll.top;
 
-				changeRenderState(childes);
+				changeRenderState(childes, scroll);
 			}
 		}
 	});
+
+	changeRenderState(childes, scroll);
 
 	end = new Date();
 	document.querySelector('#rendering_time').innerHTML = (end.getTime() - start.getTime()) + ' ms';
@@ -290,5 +203,3 @@ document.addEventListener("DOMContentLoaded", () => {
 		}, 100);
 	});
 });
-
-

@@ -64,9 +64,7 @@ export function renderHeaderDay(date, graphics) {
 	graphics.addChild(text);
 }
 
-export function getDay(date, y, height) {
-	const day = new PIXI.Graphics();
-
+export function renderDay(date, y, height, graphics) {
 	const x = date.index * (88 + 2);
 	let color = date.isWeekday ? 0xf4f5f7 : 0xfafafa;
 
@@ -74,24 +72,7 @@ export function getDay(date, y, height) {
 		color = 0xe7eef7;
 	}
 
-	day.beginFill(0xffffff);
-	const rect = day.drawRoundedRect(x, y, 88, height, 4);
-	rect.tint = color;
-	applyActions(rect, color, 0xf0f0f0);
-
-	day.endFill();
-
-	return day;
-}
-
-
-function applyActions(rect, initialColor, activeColor) {
-	// rect.interactive = true;
-	// rect.buttonMode = true;
-
-	// rect.on('mouseout', () => {
-	// 	rect.tint = initialColor;
-	// }).on('mouseover', () => {
-	// 	rect.tint = activeColor;
-	// });
+	graphics.beginFill(color);
+	graphics.drawRoundedRect(x, y, 88, height, 4);
+	graphics.endFill();
 }
