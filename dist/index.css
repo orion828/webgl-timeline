@@ -58,11 +58,12 @@ html, body {
     margin-left: 4px;
 }
 
-.lds-ring {
+.form .lds-ring {
     display: inline-block;
     position: relative;
     width: 80px;
     height: 80px;
+    margin-bottom: 0;
 }
 
 .lds-ring div {
