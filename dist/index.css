@@ -58,7 +58,7 @@ html, body {
     margin-left: 4px;
 }
 
-.form .lds-ring {
+.form div.lds-ring {
     display: inline-block;
     position: relative;
     width: 80px;
